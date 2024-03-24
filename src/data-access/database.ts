@@ -1,11 +1,12 @@
 import { MongoClient, Db, Collection } from 'mongodb';
 
-const mongoURI = 'mongodb://root:example@localhost:27017/universal_blog';
+const mongoURI = 'mongodb://root:example@mongo:27017/';
+const databaseName = 'universal_blog'
 
 class Database {
     private static instance: Database;
-    private client: MongoClient;
-    public db: Db;
+    private client!: MongoClient;
+    public db!: Db;
 
     private constructor() { }
 
@@ -19,10 +20,11 @@ class Database {
     public async connect(): Promise<void> {
         try {
             this.client = await MongoClient.connect(mongoURI);
-            this.db = this.client.db();
+            this.db = this.client.db(databaseName);
             console.log('Connected to MongoDB');
         } catch (error) {
             console.error('Error connecting to MongoDB:', error);
+            throw new Error('Error connecting to database');
         }
     }
 
@@ -32,6 +34,7 @@ class Database {
             console.log('Disconnected from MongoDB');
         } catch (error) {
             console.error('Error disconnecting from MongoDB:', error);
+            throw new Error('Error disconnecting from database');
         }
     }
 

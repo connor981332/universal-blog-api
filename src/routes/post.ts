@@ -1,9 +1,10 @@
 import express from 'express';
 const router = express.Router();
 import { sendResponse } from '../middleware/shared';
-import { addPostToDatabase, getRecentPosts, getCategories } from '../middleware/post';
+import { jsonToPost, addPostToDatabase, getRecentPosts, getCategories } from '../middleware/post';
 
 router.post('/',
+    jsonToPost,
     addPostToDatabase,
     sendResponse
 )
