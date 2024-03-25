@@ -1,12 +1,16 @@
 import express, {Request, Response, NextFunction} from 'express';
 import HttpError from './utils/HttpError';
 import postRouter from './routes/post';
+import postsRouter from './routes/posts';
+import categoriesRouter from './routes/categories';
 
 const app = express();
 
 app.use(express.json()); // Allows for parsing JSON req bodies
 
 app.use('/post', postRouter);
+app.use('/posts', postsRouter);
+app.use('/categories', categoriesRouter);
 
 app.use((req, res, next) => {
     const error = new HttpError('The requested resource does not exist.', 404);

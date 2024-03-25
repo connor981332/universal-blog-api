@@ -12,8 +12,5 @@ export const getPostsByCategory = async (category: string, pageNumber: number, p
 }
 
 export const getRecentPosts = async (pageNumber: number, pageSize: number) => {
-    console.log('Getting recent posts...');
-    const results = await getPaginatedDocuments(collectionName, {}, { createdAt: -1 }, pageNumber, pageSize);
-    console.log('Done. The results are: ', results);
-    return results;
+    return await getPaginatedDocuments(collectionName, {}, { createdAt: -1 }, pageNumber, pageSize);
 }

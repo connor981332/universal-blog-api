@@ -38,7 +38,7 @@ class Database {
         }
     }
 
-    public async execute(dbOperation: Function, collection: string): Promise<void> {
+    public async execute(dbOperation: Function, collection: string): Promise<any> {
         if (!this.db) {
             await this.connect();
         }
@@ -57,7 +57,7 @@ export const insertOne = async (collection: string, object: any) => {
 
 export const getPaginatedDocuments = async (collection: string, filterBy: Filter<any>, sortBy: Sort, pageNumber: number, pageSize: number) => {
     return await database.execute(async (dbCollection: Collection) => {
-        const documentCount = await dbCollection.countDocuments();
+        const documentCount = await dbCollection.countDocuments(filterBy);
         const skip = (pageNumber - 1) * pageSize;
         const cursor = dbCollection.find(filterBy).sort(sortBy).skip(skip).limit(pageSize);
         const results = await cursor.toArray();

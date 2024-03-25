@@ -2,7 +2,7 @@ import {Request, Response, NextFunction} from 'express';
 import Post from '../models/post';
 import HttpError from '../utils/HttpError';
 import ExpressAsyncHandler from '../utils/ExpressAsyncHandler';
-import { addPost, getRecentPosts as getRecentPostsFromDb } from '../data-access/postDAO';
+import { addPost, getRecentPosts as getRecentPostsFromDb, getPostsByCategory } from '../data-access/postDAO';
 
 export const jsonToPost = (req: Request, res: Response, next: NextFunction) => {
     let post;
@@ -16,11 +16,12 @@ export const jsonToPost = (req: Request, res: Response, next: NextFunction) => {
 }
 
 export const verifyPageQueries = (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.query);
     const pageNumber = parseInt(req.query.pageNumber as string);
     const pageSize = parseInt(req.query.pageSize as string);
     if (isNaN(pageNumber) || pageNumber <= 0) return next(new HttpError('pageNumber is a required query and must be a positive integer', 400));
     if (isNaN(pageSize) || pageSize <= 0) return next(new HttpError('pageSize is a required query and must be a positive integer', 400));
+    res.locals.pageNumber = pageNumber;
+    res.locals.pageSize = pageSize;
     return next();
 }
 
@@ -36,9 +37,10 @@ export const addPostToDatabase = ExpressAsyncHandler( async (req: Request, res: 
 
 export const getRecentPosts = ExpressAsyncHandler( async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const results = await getRecentPostsFromDb(1, 10);
+        const results = await getRecentPostsFromDb(res.locals.pageNumber, res.locals.pageSize);
         res.locals.response = {
-            posts: results
+            posts: results.results,
+            totalPosts: results.totalDocuments
         };
         next();
     } catch (err: any) {
@@ -50,3 +52,16 @@ export const getCategories = (req: Request, res: Response, next: NextFunction) =
     res.locals.response = {'message': 'There are no categories yet'}
     next();
 }
+
+export const getRecentPostsByCategory = ExpressAsyncHandler( async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const results = await getPostsByCategory(req.params.category, res.locals.pageNumber, res.locals.pageSize);
+        res.locals.response = {
+            posts: results.results,
+            totalPosts: results.totalDocuments
+        };
+        next();
+    } catch (err: any) {
+        next(new HttpError(err.message, 500));
+    }
+});
