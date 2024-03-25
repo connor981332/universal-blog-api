@@ -15,6 +15,15 @@ export const jsonToPost = (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
+export const verifyPageQueries = (req: Request, res: Response, next: NextFunction) => {
+    console.log(req.query);
+    const pageNumber = parseInt(req.query.pageNumber as string);
+    const pageSize = parseInt(req.query.pageSize as string);
+    if (isNaN(pageNumber) || pageNumber <= 0) return next(new HttpError('pageNumber is a required query and must be a positive integer', 400));
+    if (isNaN(pageSize) || pageSize <= 0) return next(new HttpError('pageSize is a required query and must be a positive integer', 400));
+    return next();
+}
+
 export const addPostToDatabase = ExpressAsyncHandler( async (req: Request, res: Response, next: NextFunction) => {
     try {
         await addPost(res.locals.post);
