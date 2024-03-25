@@ -1,4 +1,4 @@
-import { MongoClient, Db, Collection } from 'mongodb';
+import { MongoClient, Db, Collection, Sort, Filter } from 'mongodb';
 
 const mongoURI = 'mongodb://root:example@mongo:27017/';
 const databaseName = 'universal_blog'
@@ -43,7 +43,7 @@ class Database {
             await this.connect();
         }
         const dbCollection = this.db.collection(collection);
-        await dbOperation(dbCollection);
+        return await dbOperation(dbCollection);
     }
 }
 
@@ -52,5 +52,18 @@ const database = Database.getInstance();
 export const insertOne = async (collection: string, object: any) => {
     await database.execute(async (dbCollection: Collection) => {
         await dbCollection.insertOne(object);
+    }, collection);
+}
+
+export const getPaginatedDocuments = async (collection: string, filterBy: Filter<any>, sortBy: Sort, pageNumber: number, pageSize: number) => {
+    return await database.execute(async (dbCollection: Collection) => {
+        const documentCount = await dbCollection.countDocuments();
+        const skip = (pageNumber - 1) * pageSize;
+        const cursor = dbCollection.find(filterBy).sort(sortBy).skip(skip).limit(pageSize);
+        const results = await cursor.toArray();
+        return {
+            "results": results,
+            "totalDocuments": documentCount
+        }
     }, collection);
 }
