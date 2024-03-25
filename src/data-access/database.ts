@@ -67,3 +67,9 @@ export const getPaginatedDocuments = async (collection: string, filterBy: Filter
         }
     }, collection);
 }
+
+export const getAggregation = async (collection: string, pipeline: Array<object>) => {
+    return await database.execute(async (dbCollection: Collection) => {
+        return await dbCollection.aggregate(pipeline).toArray();
+    }, collection);
+}

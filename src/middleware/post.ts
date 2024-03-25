@@ -2,7 +2,7 @@ import {Request, Response, NextFunction} from 'express';
 import Post from '../models/post';
 import HttpError from '../utils/HttpError';
 import ExpressAsyncHandler from '../utils/ExpressAsyncHandler';
-import { addPost, getRecentPosts as getRecentPostsFromDb, getPostsByCategory } from '../data-access/postDAO';
+import { addPost, getRecentPosts as getRecentPostsFromDb, getPostsByCategory, getCategories as getCategoriesFromDb } from '../data-access/postDAO';
 
 export const jsonToPost = (req: Request, res: Response, next: NextFunction) => {
     let post;
@@ -48,10 +48,17 @@ export const getRecentPosts = ExpressAsyncHandler( async (req: Request, res: Res
     }
 });
 
-export const getCategories = (req: Request, res: Response, next: NextFunction) => {
-    res.locals.response = {'message': 'There are no categories yet'}
+export const getCategories = ExpressAsyncHandler( async (req: Request, res: Response, next: NextFunction) => {
+    let categories = await getCategoriesFromDb();
+    categories = categories.map((category:any) => {
+        return {
+            name: category._id,
+            count: category.count
+        }
+    });
+    res.locals.response = { 'categories': categories };
     next();
-}
+});
 
 export const getRecentPostsByCategory = ExpressAsyncHandler( async (req: Request, res: Response, next: NextFunction) => {
     try {
