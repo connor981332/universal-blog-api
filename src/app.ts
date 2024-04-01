@@ -1,10 +1,15 @@
 import express, {Request, Response, NextFunction} from 'express';
+import cors from 'cors';
 import HttpError from './utils/HttpError';
 import postRouter from './routes/post';
 import postsRouter from './routes/posts';
 import categoriesRouter from './routes/categories';
 
 const app = express();
+
+app.use(cors({
+    origin: 'http://localhost:3000'
+}));
 
 app.use(express.json()); // Allows for parsing JSON req bodies
 
